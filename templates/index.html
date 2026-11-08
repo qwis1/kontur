@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Контур — учебное веб-приложение для внутреннего учёта заявок организации.">
+    <title>Контур — система учёта заявок</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">К</div>
+                <div>
+                    <h1 class="brand-title">Контур</h1>
+                    <p class="brand-subtitle">система учёта заявок</p>
+                </div>
+            </div>
+            <button type="button" class="button button-ghost" id="refresh-button">
+                Обновить список
+            </button>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <section class="page-heading" aria-labelledby="page-title">
+            <h2 id="page-title">Контур — система учёта заявок</h2>
+            <p>
+                Регистрируйте внутренние обращения, назначайте приоритет
+                и отслеживайте ход выполнения работ.
+            </p>
+        </section>
+
+        <section class="stats" aria-label="Краткая статистика по заявкам">
+            <article class="stat-card">
+                <span class="stat-label">Всего в списке</span>
+                <strong class="stat-value" id="stat-total">0</strong>
+            </article>
+            <article class="stat-card stat-card-new">
+                <span class="stat-label">Новые</span>
+                <strong class="stat-value" id="stat-new">0</strong>
+            </article>
+            <article class="stat-card stat-card-progress">
+                <span class="stat-label">В работе</span>
+                <strong class="stat-value" id="stat-progress">0</strong>
+            </article>
+            <article class="stat-card stat-card-done">
+                <span class="stat-label">Завершено</span>
+                <strong class="stat-value" id="stat-done">0</strong>
+            </article>
+        </section>
+
+        <div class="layout">
+            <section class="card create-card" aria-labelledby="create-title">
+                <div class="card-header">
+                    <h3 id="create-title">Новая заявка</h3>
+                    <p class="card-note">Поля со звёздочкой обязательны</p>
+                </div>
+
+                <form id="create-form" novalidate>
+                    <div class="form-field">
+                        <label for="create-title-input">Название <span class="required">*</span></label>
+                        <input
+                            type="text"
+                            id="create-title-input"
+                            name="title"
+                            maxlength="120"
+                            placeholder="Например: не работает принтер"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="create-description">Описание</label>
+                        <textarea
+                            id="create-description"
+                            name="description"
+                            rows="4"
+                            maxlength="2000"
+                            placeholder="Опишите проблему или задачу подробнее"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="create-category">Категория <span class="required">*</span></label>
+                            <select id="create-category" name="category" required>
+                                <option value="" selected disabled>Выберите категорию</option>
+                                <option value="Оборудование">Оборудование</option>
+                                <option value="Программное обеспечение">Программное обеспечение</option>
+                                <option value="Сеть и связь">Сеть и связь</option>
+                                <option value="Доступы и учётные записи">Доступы и учётные записи</option>
+                                <option value="Документы">Документы</option>
+                                <option value="Другое">Другое</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="create-priority">Приоритет</label>
+                            <select id="create-priority" name="priority">
+                                <option value="Низкий">Низкий</option>
+                                <option value="Средний" selected>Средний</option>
+                                <option value="Высокий">Высокий</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="button button-primary button-block" id="create-submit">
+                        Создать заявку
+                    </button>
+                </form>
+            </section>
+
+            <section class="card list-card" aria-labelledby="list-title">
+                <div class="card-header list-header">
+                    <h3 id="list-title">Список заявок</h3>
+                    <span class="counter" id="request-count">0</span>
+                </div>
+
+                <div class="filters" aria-label="Фильтрация заявок">
+                    <div class="filter-field">
+                        <label for="filter-status">Статус</label>
+                        <select id="filter-status">
+                            <option value="">Все статусы</option>
+                            <option value="Новая">Новая</option>
+                            <option value="В работе">В работе</option>
+                            <option value="Выполнена">Выполнена</option>
+                            <option value="Закрыта">Закрыта</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="filter-category">Категория</label>
+                        <select id="filter-category">
+                            <option value="">Все категории</option>
+                            <option value="Оборудование">Оборудование</option>
+                            <option value="Программное обеспечение">Программное обеспечение</option>
+                            <option value="Сеть и связь">Сеть и связь</option>
+                            <option value="Доступы и учётные записи">Доступы и учётные записи</option>
+                            <option value="Документы">Документы</option>
+                            <option value="Другое">Другое</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="button button-secondary filter-reset" id="reset-filters">
+                        Сбросить фильтры
+                    </button>
+                </div>
+
+                <div class="list-state" id="loading-state" hidden>
+                    <span class="spinner" aria-hidden="true"></span>
+                    Загрузка заявок…
+                </div>
+
+                <div class="list-state empty-state" id="empty-state" hidden>
+                    <p id="empty-message">Заявок пока нет. Создайте первую заявку в форме слева.</p>
+                </div>
+
+                <div class="requests-list" id="requests-list" aria-live="polite"></div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>Контур — учебный проект по специальности 09.02.07, модуль ПМ.02.</p>
+        </div>
+    </footer>
+
+    <dialog class="dialog" id="edit-dialog" aria-labelledby="edit-dialog-title">
+        <form id="edit-form" novalidate>
+            <div class="dialog-header">
+                <h3 id="edit-dialog-title">Редактирование заявки</h3>
+                <button type="button" class="dialog-close" id="edit-cancel-icon" aria-label="Закрыть окно">
+                    &times;
+                </button>
+            </div>
+
+            <input type="hidden" id="edit-id" name="id">
+
+            <div class="form-field">
+                <label for="edit-title">Название <span class="required">*</span></label>
+                <input type="text" id="edit-title" name="title" maxlength="120" required>
+            </div>
+
+            <div class="form-field">
+                <label for="edit-description">Описание</label>
+                <textarea id="edit-description" name="description" rows="4" maxlength="2000"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="edit-category">Категория <span class="required">*</span></label>
+                    <select id="edit-category" name="category" required>
+                        <option value="Оборудование">Оборудование</option>
+                        <option value="Программное обеспечение">Программное обеспечение</option>
+                        <option value="Сеть и связь">Сеть и связь</option>
+                        <option value="Доступы и учётные записи">Доступы и учётные записи</option>
+                        <option value="Документы">Документы</option>
+                        <option value="Другое">Другое</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="edit-priority">Приоритет</label>
+                    <select id="edit-priority" name="priority">
+                        <option value="Низкий">Низкий</option>
+                        <option value="Средний">Средний</option>
+                        <option value="Высокий">Высокий</option>
+                    </select>
+                </div>
+            </div>
+
+            <p class="dialog-note">
+                Статус заявки изменяется отдельно в её карточке.
+            </p>
+
+            <div class="dialog-actions">
+                <button type="button" class="button button-secondary" id="edit-cancel">
+                    Отмена
+                </button>
+                <button type="submit" class="button button-primary" id="edit-submit">
+                    Сохранить изменения
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

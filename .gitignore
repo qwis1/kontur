@@ -1,0 +1,27 @@
+# Служебные файлы Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Виртуальные окружения
+venv/
+.venv/
+env/
+
+# Кэш тестов и отчёты
+.pytest_cache/
+.coverage
+htmlcov/
+tests/tmp/
+
+# Локальная база данных
+instance/
+*.db
+*.sqlite3
+
+# Редакторы и ОС
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
+*.log
